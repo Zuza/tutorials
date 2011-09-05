@@ -2,31 +2,113 @@ Gdb tutorial
 
 * Intro
 
-  Compile: g++ prog.cpp -g -ggdb [-Wall] [-o a.out]
-  Run debugger: gdb a.out
-  Within emacs: M-x gdb ---> gdb --annotate=3 a.out
+Compile: g++ prog.cpp -g -ggdb [-Wall] [-o a.out]
+Run debugger: gdb a.out
+Within emacs: M-x gdb ---> gdb --annotate=3 a.out
+Attach to a running process: attach <pid>
+
+** backtrace (or just bt)
+#0  AhoCorasik::createUplinks (this=0x8051220) at aho.cpp:75
+#1  0x0804908c in main () at aho.cpp:148
+
+
+** list (or just l)
+72	    for (Q.push(root); !Q.empty(); Q.pop()) {
+73	      node *dolje = Q.front();
+74	      int tmp = (dict[dolje] == "ab");
+75	      if (dolje->uplink == dolje)
+76	        dolje->uplink = root;
+
+
 
 * Breakpoints
   
-  info breakpoints
-  info break
-  info b
+info breakpoints
+info break
+info b
 
-  disable 2         ;; disable breakpoint #2
-  enable 1
-  delete 1
+disable 2         ;; disable breakpoint #2
+enable 1
+delete 1
 
-  b 17              ;; breakpoint at current file, line 17
-  b file.cpp:100    ;; at file.cpp, line 100
-  b *0x08045123     ;; put break at raw asm instruction at that address
-  b _start          ;; put break at the first executed command in the entire prog (ELF dependant)
-  b main
-  b func
-  b hasOverflow(int, int) ;; C++ only
+b[reak] 17        ;; breakpoint at current file, line 17
+b[r] file.cpp:100 ;; at file.cpp, line 100
+b *0x08045123     ;; put break at raw asm instruction at that address
+b _start          ;; put break at the first executed command in the entire prog (ELF dependent?)
+b main
+b func
+b hasOverflow(int, int) ;; C++ only (?) - C doesn't need args
+
+** Conditional break
+
+condition 1 item_to_remove == 5
+cond 1 (tmp == 1)
+
+Note: doesn't work well with string comparison, rather use something like this..
+int tmp = ( dict[node].c_str() == "abc" );
+cond 1 (tmp == 1)
+
+*** info breakpoints
+Num     Type           Disp Enb Address    What
+1       breakpoint     keep y   0x08049469 in AhoCorasik::createUplinks() at aho.cpp:75
+	stop only if (tmp == 1)
+
+
 
 * Raw memory (asm)
 
-  x $ebp
-  x $ebp + 0x0
+x $ebp
+x $ebp + 0x04
 
-  info registers
+info registers
+
+disassemble                  ;; current context by default
+disassemble main
+disassemble hasOverflow(int, int)
+
+** Example: gcc asm
+
+// Abort if an overflow occurs
+
+typedef unsigned int uint;
+
+uint hasOverflow(uint a, uint b) {
+  volatile uint overflow = false;
+
+  __asm__ __volatile__ (
+    "add %[a], %[b]   ;"
+    "jnc moja         ;"
+    "movl $1, %[ov_sym]   ;"
+    "moja:            ;"
+    : [b] "+g" (b) // '+' denotes read-write
+    , [ov_sym] "=g" (overflow)     // '=' denotes output symbol (they come first)
+    : [a] "g" (a)              // input symbol, 'g' denotes register or memory (gcc decides)
+  );
+  if (overflow) abort();
+  return b;
+}
+
+int main(void) { return hasOverflow(4294967290u, 6u); }
+
+
+
+* Stepping
+
+run -> [re]start prog
+kill
+
+n[ext]            ;; next instruction (skip function calls)
+s[tep]            ;; step into (jump into functions)
+n[ext]i           ;; next asm instruction (skip asm calls)
+s[tep]i
+
+finish            ;; execute until selected stack frame returns
+
+
+* Variables
+
+set tmp = 2     ;; change variable value
+
+
+
+
