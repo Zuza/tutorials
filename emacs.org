@@ -185,6 +185,19 @@ collect, sum, append, concat, maximize, minimize
 (loop for x from 1 to 10 do (setq x (1+ x)) sum x)   ;; =30
 
 
+* Interesting modes
+  CEDET - (included) must have for C++ development - http://cedet.sourceforge.net/
+  org-mode - (included?) Notes, Planning, Authoring, Organizing (this file is written in org mode)
+  show-paren-mode - (included) can't live without it
+  scroll-bar-mode - (included) just shut if off if it's not off by default
+  linum-mode - (included) if you want line numbers, this is the one for you
+  cua-mode - (included) windows like ctrl+c, v, x; shift select
+  windmove-default-keybindings 'meta - moving between emacs internal windows with M-<arrow>
+  color-theme - (NOT included) 50+ emacs flavors for you - http://www.emacswiki.org/emacs/ColorTheme
+  flyspell-mode - (included, but requires external programs) spell checker
+  ido-mode - (included) gives file/buffer suggestions in minibuffer for faster search 
+  gdb - not really a full-fledged mode, but unbelievably powerful
+
 * Buffer
 
 (buffer-name)                             ;; name of the current buffer... Unrelated: try calling it with C-u C-x C-e
@@ -214,3 +227,4 @@ http://www.chemie.fu-berlin.de/chemnet/use/info/elisp/elisp_26.html
 (cond ((eq system-type 'windows-nt) (load-library "ntemacs-cygwin"))
       ((eq system-type 'gnu/linux) (load-library "linux"))
       (t (load-library "default")))
+
