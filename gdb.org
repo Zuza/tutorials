@@ -1,0 +1,32 @@
+Gdb tutorial
+
+* Intro
+
+  Compile: g++ prog.cpp -g -ggdb [-Wall] [-o a.out]
+  Run debugger: gdb a.out
+  Within emacs: M-x gdb ---> gdb --annotate=3 a.out
+
+* Breakpoints
+  
+  info breakpoints
+  info break
+  info b
+
+  disable 2         ;; disable breakpoint #2
+  enable 1
+  delete 1
+
+  b 17              ;; breakpoint at current file, line 17
+  b file.cpp:100    ;; at file.cpp, line 100
+  b *0x08045123     ;; put break at raw asm instruction at that address
+  b _start          ;; put break at the first executed command in the entire prog (ELF dependant)
+  b main
+  b func
+  b hasOverflow(int, int) ;; C++ only
+
+* Raw memory (asm)
+
+  x $ebp
+  x $ebp + 0x0
+
+  info registers
