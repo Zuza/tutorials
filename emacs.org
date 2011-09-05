@@ -1,50 +1,51 @@
 Emacs lisp programming tutorial
 zuza - 15.08.2010. - 04.09.2011.
 
-* Uvod
-emacs ima potpuno funkcionalni jezik koji omogucava pisanje all-purpose programa i dodavanje ekstenzija
-taj programski jezik zove se emacs lisp, dijalekt common lispa
+* Intro
+emacs has a completely functional language that supports writing general-purpose programs as well as extensions
+that language is called emacs lisp
 
 easy&long guide >> http://www.gnu.org/software/emacs/emacs-lisp-intro/html_mono/emacs-lisp-intro.html
 
-M = alias za META/ALT
-"C-x" oznacava Ctrl+x
-"C-x a" oznacava Ctrl+x (pusti Ctrl) a
-"C-M-x C-k" oznacava Ctrl+Alt+x Ctrl+k
+M = alias for META/ALT
+"C-x" denotes Ctrl+x
+"C-x a" denotes Ctrl+x (let Ctrl go) a
+"C-M-x C-k" denotes Ctrl+Alt+x Ctrl+k
 
 eval-last-sexp = C-x C-e 
-  staviti kursor na kraj naredbe i pozvati to za evaluaciju u elispu
-  pomocu tih tipaka se prolazi kroz ovaj tutorial !!!
+  put the cursor point at the end of a expression you wish to evaluate in-place
+  these are your friends throughout this tutorial
 
 eval-expression = M-:
-  pisanje izraza u trenutni buffer
+  eval expression with the current buffer
 
-;; komentari su prefiksirani s dva semicolona
+;; comments are prefixed with two semicolons
 
 ** Help
-C-h f <funkcija>                ;; dokumentacija za funkciju (+ skok na definiciju)
-C-h v <varijabla>               ;; dokumentacija za varijablu (+ skok na definiciju)
-C-h b                           ;; lista keybindova
-C-h ?                           ;; lista help mogucnosti
+C-h f <function>                ;; function docs (+ jump to definition)
+C-h v <variable>                ;; variable docs (+ jump to definition)
+-> this is the true meaning of self-documented
+C-h b                           ;; list of key-binds
+C-h ?                           ;; list of help features
 
 
 * Misc
-Emacsov OS prozor se dijeli na jedan ili vise *window*-a. Svaki window prikazuje tocno jedan *buffer*.
-Moguce je u jednom procesu imati vise OS prozora koji se tada zovu *frame*-ovi. 
+Emacs OS window is divided onto one or more *windows*. Every window shows exactly one *buffer*.
+It is possible, although not common, to have multiple OS windows within one process. These are called *frames*.
 
-(buffer-name)                     ;; poziv funkcije - trenutno mi vraca "emaks-tutorjal"
-fill-column                       ;; varijabla      - vraca mi 70 ;; sa zagradama ne radi - to bi oznacavalo funkciju
+(buffer-name)                     ;; function call - should be returning "emacs.org"
+fill-column                       ;; variable      - return 70 to me ;; note: it wouldn't work if you put parens around it - that would correspond to a function call
 
-(+)                               ;; =0 >> funkcija + je primila 0 argumenata
+(+)                               ;; =0 >> function + accepted 0 params (note: symbols aren't required to start with a letter)
 (*)                               ;; =1
 (+ 2 2)                           ;; =4
 (+ 2 2 5 7)                       ;; =16
-;; (+ "abc" "def")                ;; ne radi >> + je za brojeve
+;; ERROR: (+ "abc" "def")                ;; doesn't work -> + is only for numbers
 (concat "abc" "def")              ;; ="abcdef"
 (substring "abcdef" 2 4)          ;; ="cd"
 
-;; (concat "The " (+ 2 fill-column) " red foxes.")                    ;; GRESKA! - concat i broj ne idu skupa
-(concat "The " (number-to-string (+ 2 fill-column)) " red foxes.")    ;; ="The 72 red foxes."
+;; ERROR: (concat "The " (+ 2 fill-column) " red foxes.")                    ;; concat doesn't accept numerical args
+(concat "The " (number-to-string (+ 2 fill-column)) " red foxes.")           ;; ="The 72 red foxes."
 
 (message "This message appears in the echo area!")
 (message "The name of this buffer is: %s. The val is %d." (buffer-name) fill-column)
@@ -53,50 +54,49 @@ fill-column                       ;; varijabla      - vraca mi 70 ;; sa zagradam
    (concat "red "
       (substring
       "The quick brown foxes jumped." 16 21)
-      " leaping."))               ;; moze i ovako
-
-(car '(1 . 2))                    ;; =1
-(cdr '(1 . 2))                    ;; =2
-(cdr '(1 2 3 4 5))                ;; (2 3 4 5) -> podsjetnik: lista je ustvari niz cons cellova
+      " leaping."))               ;; this is also OK
 
 
 * Elisp
 
-** Vrste podataka
-t                                 ;; true          >> nekakav bool
-nil                               ;; false = ()    >> nekakav bool
-12                                ;; numericka vrijednost
+** Data types
+t                                 ;; true          >> bool alike
+nil                               ;; false = ()    >> bool alike
+12                                ;; numerical value
 -13.124                           ;;    --||--
-'rijec                            ;; *symbol* - slicno stringu, obicno se koristi kao ime varijable
+'rijec                            ;; *symbol* - similar to a string, is used as a function/variable name. It is usually bind to some object.
 '12+bla                           ;; symbol
 "ovo je string"                   ;; *string*
-'(1 . 2)                          ;; tzv. *cons* cell.. struktura od tocno dva clana. Prvi se zove *car*, drugi *cdr*. Note: bez apostrofa se ne kompajlira
-'(1 2 3 4)                        ;; *list*, potpuno jednako kao i (1 . (2 . (3 . (4 . nil)))). Note: apostrof; nil = () = prazna lista
-'(bla 32 ja sam jako super)       ;; lista, apostrof simbolizira uzimanje doslovne vrijednosti (inace se lista pokusava evaluirati)
-'(moze (i ovako () ()) )          ;; lista u listi, primjeti.. () = nil
-'(nesto (+ 1 2))                  ;; ako se lista uzima doslovno, tada se i podliste uzimaju doslovno
-(+ 1 2 3)                         ;; lista se evaluira u broj 6
-;; (bla bla ovo je greska)        ;; greska! pokusava naci funkciju bla (koja ne postoji) i proslijediti joj argumente
-#<buffer emaks>                   ;; interna emaksova struktura, ima ih jako mnogo
+'(1 . 2)                          ;; so called *cons* cell.. struct of exactly two members: the *car* (first one) and the *cdr* (second and last one). Note: without the apostrophe it doesn't compile
+  (car '(1 . 2))                  ;; =1
+  (cdr '(1 . 2))                  ;; =2
+'(1 2 3 4)                        ;; *list*, completely equivalent to (1 . (2 . (3 . (4 . nil)))). Note: apostrophe; nil = () = empty list
+  (cdr '(1 2 3 4 5))              ;; (2 3 4 5) note: a list is actually a cons cell construct
+'(bla 32 f o o)                   ;; list, apostrophe symbolizes the literal value, without it emacs would try to evaluate it
+'(moze (i ovako () ()) )          ;; list within a list... () = nil
+'(nesto (+ 1 2))                  ;; one apostrophe is enough for the whole list (can introduce subtle errors in complex code)
+(+ 1 2 3)                         ;; =6, a list that evaluates to a number
+;; ERROR: (bla bla ovo je greska) ;; ERROR! it actually tries to find the function bla (which doesn't exist) and pass it the other 4 args
+#<buffer emaks>                   ;; an internal emacs structure, there are a lot of these
 
-** Varijable
+** Variables
 
-;; sintaksa: (set  <simbol> <value>)  ;; mora se pisati apostrofa ispred 1. argumenta
-;; sintaksa: (setq <rijec>  <value>)  ;; prakticki samo nacin da se ne mora pisati ' ispred 1. arg
-;; sintaksa: (setq <rijec1> <val1> [<rijec2> <val2> [<rijec3> <val3> ... ] ] ) ;; ovo set ne moze
+;; syntax: (set  <symbol> <value>)  ;; you probably want to have an apostrophe before the 1st arg
+;; syntax: (setq <name>  <value>)  ;; syntactical sugar: so you can leave out the ' before the 1st arg
+;; syntax: (setq <name1> <val1> [<name2> <val2> [<name3> <val3> ... ] ] ) ;; vanilla set doesn't support such a thing
 
 (set 'flowers  (+ 1 2 3))                 ;; flowers=6
-(set 'flowers '(+ 1 2 3))                 ;; flowers=(+ 1 2 3) -- primjeti OBA apostrofa
+(set 'flowers '(+ 1 2 3))                 ;; flowers=(+ 1 2 3) -- Note: both '
 (setq carnivores '(lion tiger leopard))   ;; carnivores=(lion tiger leopard)
 (setq a 5 b '(+ 1 2) c "abc")             ;; a=5, b=(+ 1 2), c="abc"
 
-;; (setq moj-counter (+ moj-counter 1))   ;; greska! zato jer nismo inicijalizirali varijablu
-(setq moj-counter 0)                      ;; sad je moguce izvrsiti prethodnu naredbu
+;; (setq moj-counter (+ moj-counter 1))   ;; ERROR! we didn't initialize moj-counter
+(setq moj-counter 0)                      ;; now you can eval the last expression
 
-;; sintaksa: (let ( (<nam1> <val1>) [(<nam2> <val2>) [(...)...]] ) <body>) 
-;;    -> stvara lokalnu varijablu koja se vidi samo unutar let naredbe
-;;    -> vraca povratnu vrijednost od <body> bloka
-;;    -> cesto se koristi u funkcijama
+;; syntax: (let ( (<name1> <val1>) [(<name2> <val2>) [(...)...]] ) <body>) 
+;;    -> creates a local variable that is visible only within the let body
+;;    -> returns the return value of <body>
+;;    -> pretty common-place in complex code
 
 (let 
    ((zebra 'stripes) (tiger 'fierce))  ;; varlist >> zebra='stripes, tiger='fierce
@@ -109,79 +109,73 @@ nil                               ;; false = ()    >> nekakav bool
       birch pine fir oak)
 )
 
-** Funkcije
+** Functions
 
-;; ugradjene funkcije koje pozivate su napisane u lispu, osim nekoliko pocetnih funkcija koje su implementirane u C-u
-;; postoje tzv. "interaktivne" i "neinteraktivne" funkcije.. vise o tome kasnije
-;; vecina funkcija koje smo do sada vidjeli nisu interaktivne
-;; one interaktivne se mogu pozvati sa M-x (execute-extended-command)
+;; native functions are usually implemented in a lisp library, except a few that are implemented in C
+;; two kinds of functions: *interactive* and *non-interactive*, but more on that later
+;; most of the functions seen so far are non-interactive
+;; there is only one difference: the interactive ones can be called with M-x (execute-extended-command)
 
-(defun multiply-by-seven (number) "Tu ide dokumentacija. Ova funkcija mnozi broj sa 7." (* 7 number))
-(multiply-by-seven 6)                     ;; =42, malo da isprobamo funkciju
+(defun multiply-by-seven (number) "This is the docstring. This function multiplies a number by 7 and returns the result." (* 7 number))
+(multiply-by-seven 6)                     ;; =42, let's try it out
 
-;; C-u >> universal-argument -- ovo ce nam trebati kasnije
-(defun multiply-by-seven (number)   ;; interaktivna verzija, prebrisuje proslu verziu
+;; C-u >> universal-argument -- we'll need this later
+(defun multiply-by-seven (number)   ;; interactive version.. Note: newer functions overwrite the older ones without any errors
    "Multiply NUMBER by seven."
-   (interactive "p")                 ;; specijalna forma koja oznacava interaktivnu funkciju, ucitava number metodom "p"
-   (message "The result is %d" (* 7 number)))  ;; instaliraj je sa C-x C-e, te potom C-u 3 M-x multiply-by-seven
-                                               ;; mozes i sa M-3 M-x multiply-by-seven
+   (interactive "p")                 ;; special interactive argument loading, loads "number" by method "p"
+   (message "The result is %d" (* 7 number)))  ;; install the function with C-x C-e, then eval it with C-u 3 M-x multiply-by-seven
+                                               ;; also try M-3 M-x multiply-by-seven (although I've commonly seen M-3 rebind to a more useful task)
 
-;; interaktivno oznacava nacin na koji se unose argumenti, neinteraktivno = preko liste, npr. (f arg1 arg2 arg3)
-;; "p" oznacava prefiks = argument se unosi preko C-u ili M-
-;; "n" ucitava broj iz minibuffera
-;; "s" tekst
-;; "f" file koji mora postojati.. TAB TAB za auto-completion
-;; "b" ime postojeceg buffera... auto-completion
+;; interactive denotes the way how to input the argument. Note: non-interactive (through the call list) vs. interactive (explicit user input)
+;; "p" denotes "prefix" = arguments are inputted via C-u <digits> or M-<digits>
+;; "n" read a numeric via minibuffer
+;; "s" text via minibuffer
+;; "f" file that must exist via minibuffer.. TAB TAB for auto-completion (nice!)
+;; "b" name of a existing buffer... auto-completion ++
 
-(defun zbroji-dvije-var (var1 var2)
-   "Dokumentacija funkcije koja zbraja dvije varijable"
-   (interactive "nPrvi argument: \nnDrugi argument: ")
+(defun add-two-vars (var1 var2)
+   "Docstring of a func that adds two vars"
+   (interactive "nFirst arg: \nnSecond arg: ")
    (message "The result is %d" (+ var1 var2))
 )
 
 (defun my-open-file (myname)
-   "Interaktivna funkcija koja moze otvoriti file u bufferu."
-   (interactive "fUnesi ime filea: ")          ;; probaj lupiti tab par puta
+   "Interactive function that can open a file in this buffer"
+   (interactive "fPlease input the name of the file: ")          ;; try using the auto-completion TAB
    (find-file myname)
 )
 
-;; lista interaktivnih arg. > http://www.gnu.org/software/emacs/emacs-lisp-intro/html_mono/elisp.html#Interactive-Codes
+;; more on interactive functions here > http://www.gnu.org/software/emacs/emacs-lisp-intro/html_mono/elisp.html#Interactive-Codes
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; C-h ? daje objasnjenje help o helpu, obavezno prouciti
-;;    -> pomocu toga je moguce doci do dokumentacijskog stringa i/ili mjesta implementacije bilo koje funkcije
-;; pogledati i http://www.gnu.org/software/emacs/emacs-lisp-intro/html_mono/emacs-lisp-intro.html#Permanent-Installation
-;;    -> instalacija za windows emacs je malo slozenija.. ukljucuje registre, ali nista pretesko
-;;    -> uvijek je moguce napisati M-x load-file <my-file> koje ucitava sve funkcije u memoriju - iako nije trajno
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Have a look at http://www.gnu.org/software/emacs/emacs-lisp-intro/html_mono/emacs-lisp-intro.html#Permanent-Installation
+-> installation for windows is a little more complicated, it involves regedit, but nothing too hard/hacky
+-> you can always M-x load-file <my-init-file> which will load all requested function in memory for one session
 
 ** Language features
 
 *** If
 (if (> 5 4) (+ 1 2))                           ;; =3
-(let ((a 's1) (b 's1)) (if (equal a b) 100))   ;; =100 >> a='s1 b='s1 te vraca 100 jer a==b
-(let ((a 's1) (b 'bla)) (if (equal a b) 100))  ;; =nil >> uvjet nije ispunjen -- operator '=' radi samo na brojevima
-(if (= 3 3) "istina" "else-blok")              ;; ="istina"
-(if (<= 7 5) 'istina 'else-blok)               ;; ='else-blok
-(if (not (or (< 3 5) (> 3 5))) 'istina 'laz)   ;; ='laz
+(let ((a 's1) (b 's1)) (if (equal a b) 100))   ;; =100 >> a='s1 b='s1, returns 100 because a==b
+(let ((a 's1) (b 'bla)) (if (equal a b) 100))  ;; =nil >> condition not fulfilled
+(if (= 3 3) "truth" "else-block")              ;; ="truth"
+(if (<= 7 5) 'my-truth 'else-block)               ;; ='else-block
+(if (not (or (< 3 5) (> 3 5))) 'my-truth 'my-lie )   ;; ='my-lie
 
-;; funkcija koje imaju nastavak "p" (predikat) obicno oznacavaju vracaju true(t) ili false(nil) ovisno jel argument dobrog tipa
-;; kao false vrijednost se koristi nil i ()   --- napomena: nil i () su sinonimi
-;; kao true vrijednost se koristi bilo sto drugo 
+;; functions with a suffix "p" (predicate) denote they test for something and return either true (t) or false (nil) with respect to their only arg
 
-;; popis operatora i jos neke zanimljivosti
+;; List of operations and a bit more:
 ;;   -> http://www.gnu.org/software/emacs/emacs-lisp-intro/html_mono/emacs-lisp-intro.html#Review
 
 *** Loop for
-(require 'cl) -> treba da bi loadali sljedece konstrukte
-vise informacija na http://www.gnu.org/software/emacs/manual/html_mono/cl.html
+(require 'cl) -> should load the below constructions.. I always have this loaded
+more info about this on http://www.gnu.org/software/emacs/manual/html_mono/cl.html
 
-(setq L nil suma 0) ;; priprema
+(setq L nil suma 0) ;; preparation
 
 (loop for x in (buffer-list) do (add-to-list 'L x) (message "buffer: %s" x))
 (loop for var from 1 to 10 do (setq suma (+ suma var)))
-(loop repeat 3 do (insert "!!nadam se da znas kako se koristi undo!!\n"))
-(loop until (eobp) do (forward-line 1))
+(loop repeat 3 do (insert "!!I hope you know how to undo!!\n"))
+(loop until (eobp) do (forward-line 1))                           ;; scream for help for new command (once again: C-h f <cmd>)
 
 **** Accumulation clauses:
 collect, sum, append, concat, maximize, minimize
@@ -193,16 +187,16 @@ collect, sum, append, concat, maximize, minimize
 
 * Buffer
 
-(buffer-name)                             ;; ime buffera (prozora) .. probaj pozvati sa C-u C-x C-e
-(buffer-file-name)                        ;; i kojem fajlu ovaj buffer odgovara - nil ako nema
-(buffer-list)                             ;; pomoc na: C-h f buffer-list
-(current-buffer)                          ;; buffer-name daje ime, ova funkcija daje referencu na trenutni buff
+(buffer-name)                             ;; name of the current buffer... Unrelated: try calling it with C-u C-x C-e
+(buffer-file-name)                        ;; which file does this buffer corresponds
+(buffer-list)                             ;; try calling the help with: C-h f buffer-list
+(current-buffer)                          ;; buffer-name gives the emacs internal object that corresponds to the current buffer
 (other-buffer)
-(switch-to-buffer (other-buffer))         ;; ..ne zna citati misli
-(buffer-size)                             ;; kolko ima charova u trenutnom bufferu
-(point)                                   ;; na kojem slovu u bufferu si
-(point-min)                               ;; najmanja dopustiva vrijednost za point (1?)
-(point-max)                               ;; najveca dopustiva vrijednost za point ( (buffer-size) ?)
+(switch-to-buffer (other-buffer))         ;; .. can be wrong.. Try using (windmove-default-keybindings 'meta)
+(buffer-size)                             ;; how many chars in the current buffer
+(point)                                   ;; which char am I at?
+(point-min)                               ;; min allowable point position (should always be 1?)
+(point-max)                               ;; max allowable point position (should always be (buffer-size) ?)
 
 
 * Window
@@ -211,6 +205,12 @@ http://www.chemie.fu-berlin.de/chemnet/use/info/elisp/elisp_26.html
 (select-window (next-window))
 (window-list)
 (windowp (car (window-list)))
-(window-buffer (selected-window))         ;; buffer koji se trenutno prikazuje u windowu
+(window-buffer (selected-window))         ;; buffer that is currently shown in this window
 (delete-window)
 
+
+* Portability
+
+(cond ((eq system-type 'windows-nt) (load-library "ntemacs-cygwin"))
+      ((eq system-type 'gnu/linux) (load-library "linux"))
+      (t (load-library "default")))
