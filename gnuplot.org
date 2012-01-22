@@ -1,0 +1,20 @@
+* Programming
+
+** Print
+print 1+5*10
+print sin(1), cos(1), log(10), log10(10), "<<asd>>"
+
+** Variables & Functions
+my_var = 10
+f(x) = sin(a*x); a = 3; print f(1)
+lg(x) = log(x) / log(2)
+f(x, y, z) = x + y*z; print f(1,2,3)
+
+show variables / show functions / show all
+
+* Plotting
+
+plot sin(x), cos(x)
+plot f(x) = sin(x*a), a = .2, f(x), a = .4, f(x)
+plot "datafile.1" with lines, "datafile.2" with points
+plot [t=1:10] [-pi:pi*2] tan(t)
