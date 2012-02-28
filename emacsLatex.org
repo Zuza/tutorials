@@ -1,0 +1,50 @@
+* Org mode LaTeX
+
+LaTeX formulas can be embedded into Org mode documents. Consider an example:
+
+\begin{eqnarray}
+E &=& mc^2                              \\
+m &=& \frac{m_0}{\sqrt{1-\frac{v^2}{c^2}}} \\
+ y &=& x^4 + 4      \nonumber \\
+   &=& (x^2+2)^2 -4x^2 \nonumber \\
+   &\le&(x^2+2)^2
+\end{eqnarray}
+
+** Preview
+To preview the formula, run /org-preview-latex-fragment/ (C-c C-x C-l).
+For the opposite effect (to remove the images), type (C-c C-c).
+
+Also, traditional dollar ($) signs can be rendered if:
+- the text enclosed within is joined to the dollar sign
+- the enclosing dollar is followed by whitespace or punctation
+- the enclosed text extends no more then 2 lines
+
+Example:
+$a + b = 1$
+Within text $\int_a^b f(\tau) d\tau = 1$.
+Followed $^b_y$ whitespace.
+
+Anti-example:
+$ a + b = 1 $
+Not $followed$by whitespace or punctation.
+
+
+** Scaling the images
+
+- /customize-variable org-format-latex-options/
+  - Change /:scale/ to something like 1.5
+  - Re-render
+    
+
+* Emacs AucTeX
+
+Preview-LaTeX can be used to preview sections/regions in a WYSIWYG fashion.
+- /C-c C-p C-s/ runs the command /preview-section/
+- /C-c C-p C-c C-s/ runs the command /preview-clearout-section/ (remove previews)
+- /C-c C-c/ runs the command /TeX-command-master/ (render entire doc)
+
+** Scaling the images
+- /customize-variable preview-scale-function/
+  - Value Menu -> Number
+    - 1.0, 1.1, 1.2
+
