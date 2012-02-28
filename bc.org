@@ -1,0 +1,39 @@
+define l2(x) { return l(x) / l(2.0); }
+define f(p) { return  - l2(p)*p - l2(1-p)*(1-p); }
+define fact(x) { if(x == 0) return 1; return fact(x-1)*x; }
+define povrh(n, k) { 
+  ret = 1; j = 1;
+  for (i = n-k+1; i <= n; ++i) { 
+    ret = ret*i/j; j = j+1;
+  }
+  return ret;
+}
+define pow(b, exponent) { return e(exponent * l(b)); }
+define prob(n, k, p) { return povrh(n, k) * pow(p, k) * pow(1-p, n-k); }
+define abs(x) { if (x<0) return -x; return x; }
+
+n = 20;
+p = 0.9;
+scale=16;
+h=f(p);
+h;
+eps = 0.1;
+
+suma = 0;
+vjerojatnost = 0;
+
+for (k = 0; k <= n; ++k) {
+  h_c = -l2(pow(p,k)*pow(1-p,n-k)) / n;
+  if (abs(h_c-h) <  eps) {
+    suma += povrh(n,k);
+    vjerojatnost += prob(n, k, p);
+  }
+  print k, " ", povrh(n, k), " ", prob(n, k, p), " ", h_c , "\n";
+}
+
+scale=10;
+print suma, " / ", pow(2, n), " " , suma/pow(2,n)*100, "%\n";
+print "vjerojatnost = ", vjerojatnost, "\n";
+
+halt
+
