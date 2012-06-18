@@ -1,0 +1,18 @@
+
+* Sintaksa
+
+digraph {
+  a -> b;
+  b -> c [ label = "edge label" ];
+  a -> c;
+}
+
+graph {
+ a -- b;
+ b -- c;
+ cudno_ime_01232_xy -- a;
+}
+
+* Pokretanje
+
+: dot -Tpng hello.dot -o hello.png

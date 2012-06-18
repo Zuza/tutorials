@@ -1,5 +1,5 @@
 Emacs lisp programming tutorial
-zuza - 15.08.2010. - 04.09.2011.
+zuza - 15.08.2010. - 18.06.2012
 
 * Intro
 emacs has a completely functional language that supports writing general-purpose programs as well as extensions
@@ -184,6 +184,20 @@ collect, sum, append, concat, maximize, minimize
 (loop for x from 1 to 10 collect x)                  ;; (1 2 3 ... 10)
 (loop for x from 1 to 10 do (setq x (1+ x)) sum x)   ;; =30
 
+*** Lists
+'(1 2 3) is equivalent to '(1 . (2 . (3 . nil)))
+(setq L '(1 2 3))
+(list-length l)                                        ;; =3
+(add-to-list 'L "hi")                                  ;; now 'l is ("hi" 1 2 3)
+(add-to-list 'L "to-the-back" t)                       ;; append to the back
+(loop for x in L do (message "list element: %s" x))    ;; check your echo buffer (C-h e) for the output
+
+*** Lambda functions
+(lambda (a b c) (+ a b c))                               ;; lambdas are self-quoting
+'(lambda (a b c) (+ a b c))                              ;; same as above
+(setq F (lambda (a b c) (+ a b c)))
+(funcall F 1 2 3)                                        ;; =6
+
 
 * Interesting modes
   CEDET - (included) must have for C++ development - http://cedet.sourceforge.net/
@@ -197,9 +211,10 @@ collect, sum, append, concat, maximize, minimize
   flyspell-mode - (included, but requires external programs) spell checker
   ido-mode - (included) gives file/buffer suggestions in minibuffer for faster search 
   gdb - not really a full-fledged mode, but unbelievably powerful
+  visual-line-mode - nicely readable long lines
+
 
 * Buffer
-
 (buffer-name)                             ;; name of the current buffer... Unrelated: try calling it with C-u C-x C-e
 (buffer-file-name)                        ;; which file does this buffer corresponds
 (buffer-list)                             ;; try calling the help with: C-h f buffer-list
